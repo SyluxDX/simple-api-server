@@ -42,7 +42,7 @@ func uploadFile(w http.ResponseWriter, r*http.Request){
     }
     defer file.Close()
     fmt.Fprintf(w, "%v", handler.Header)
-    f, err := os.OpenFile("./uploads/"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
+    f, err := os.OpenFile(path.Join(Configs.UploadFolder, handler.Filename), os.O_WRONLY|os.O_CREATE, 0666)
     if err != nil {
         log.Println(err)
         return
@@ -58,19 +58,21 @@ func handleRequests() {
     http.HandleFunc("/articles", returnAllArticles)
     // upload
     http.HandleFunc("/upload", uploadFile)
+    // /public -> serve static files from static folder
+    http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("./static"))))
     log.Fatal(http.ListenAndServe(url, nil))
 }
 
 func main() {
 	ArticleDB = append(ArticleDB, utils.Article{Title: "Title: 1", Desc: "Article Description", Content: "Article Content"})
-	ArticleDB = append(ArticleDB, utils.Article{Title: "Title: 2", Desc: "Article Description", Content: "Article Content"})
+    ArticleDB = append(ArticleDB, utils.Article{Title: "Title: 2", Desc: "Article Description", Content: "Article Content"})
+    
     Configs = utils.GetConfigs()
     // check if upload folder exist
     if _,err := os.Stat(path.Join(".", Configs.UploadFolder)); os.IsNotExist(err) {
         os.Mkdir(path.Join(".", Configs.UploadFolder), os.ModePerm)
     }
 
-    // fmt.Printf("Serving API on %[1]s port %[2]d (http://%[1]s:%[2]d/)\n", config.ServerURL, config.ServerPort)
     log.Printf("Serving API on %[1]s port %[2]d (http://%[1]s:%[2]d/)\n", Configs.ServerURL, Configs.ServerPort)
 	handleRequests()
 }
