@@ -2,19 +2,19 @@ package main
 
 import (
     "io"
-	"os"
+    "os"
     "fmt"
     "log"
     "path"
-	"net/http"
-	"encoding/json"
-	"./utils"
+    "net/http"
+    "encoding/json"
+    "./utils"
 )
 
 // ArticleDB global array to simulate a database
 var (
-	ArticleDB []utils.Article
-	Configs utils.Configurations
+    ArticleDB []utils.Article
+    Configs utils.Configurations
 )
 
 func homePage(w http.ResponseWriter, r *http.Request){
@@ -23,8 +23,8 @@ func homePage(w http.ResponseWriter, r *http.Request){
 }
 
 func returnAllArticles(w http.ResponseWriter, r *http.Request){
-	w.Header().Add("Content-Type", "application/json")
-	log.Println("Endpoint Hit: returnAllArticles")
+    w.Header().Add("Content-Type", "application/json")
+    log.Println("Endpoint Hit: returnAllArticles")
     json.NewEncoder(w).Encode(ArticleDB)
 }
 
@@ -52,7 +52,7 @@ func uploadFile(w http.ResponseWriter, r*http.Request){
 }
 
 func handleRequests() {
-	url := fmt.Sprintf("%s:%d", Configs.ServerURL, Configs.ServerPort)
+    url := fmt.Sprintf("%s:%d", Configs.ServerURL, Configs.ServerPort)
     http.HandleFunc("/", homePage)
     // add our articles route and map it to our returnAllArticles function like so
     http.HandleFunc("/articles", returnAllArticles)
@@ -64,9 +64,9 @@ func handleRequests() {
 }
 
 func main() {
-	ArticleDB = append(ArticleDB, utils.Article{Title: "Title: 1", Desc: "Article Description", Content: "Article Content"})
+    ArticleDB = append(ArticleDB, utils.Article{Title: "Title: 1", Desc: "Article Description", Content: "Article Content"})
     ArticleDB = append(ArticleDB, utils.Article{Title: "Title: 2", Desc: "Article Description", Content: "Article Content"})
-    
+
     Configs = utils.GetConfigs()
     // check if upload folder exist
     if _,err := os.Stat(path.Join(".", Configs.UploadFolder)); os.IsNotExist(err) {
@@ -74,5 +74,5 @@ func main() {
     }
 
     log.Printf("Serving API on %[1]s port %[2]d (http://%[1]s:%[2]d/)\n", Configs.ServerURL, Configs.ServerPort)
-	handleRequests()
+    handleRequests()
 }
