@@ -1,11 +1,10 @@
 FROM golang:alpine as builder
 WORKDIR /src
 COPY . .
-RUN go build -o api-server server.go
-RUN rm -rf .dockerignore server.govim
+RUN CGO_ENABLED=0 go build -a -ldflags '-w -s' -o api-server server.go
+RUN rm -rf .dockerignore server.go
 
-## can't use scratch due to net dynamic libraries
-FROM alpine
+FROM scratch
 WORKDIR /src
 COPY --from=builder /src .
 ENTRYPOINT ["/src/api-server"]
